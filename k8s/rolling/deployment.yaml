@@ -48,7 +48,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: app
-          image: YOUR_DOCKERHUB_USERNAME/aceest-fitness:3.2.4
+          image: 2026ht66052/aceest-fitness:3.2.4
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

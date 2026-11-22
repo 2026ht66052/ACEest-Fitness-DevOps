@@ -41,7 +41,7 @@ pipeline {
   }
 
   environment {
-    DOCKERHUB_USER   = 'YOUR_DOCKERHUB_USERNAME'          // <-- change me
+    DOCKERHUB_USER   = '2026ht66052'          // <-- change me
     IMAGE_NAME       = "${DOCKERHUB_USER}/aceest-fitness"
     IMAGE_TAG        = "${params.APP_VERSION}-${env.BUILD_NUMBER}"
     K8S_NAMESPACE    = 'aceest'

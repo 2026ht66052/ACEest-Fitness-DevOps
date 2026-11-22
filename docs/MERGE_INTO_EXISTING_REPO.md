@@ -135,8 +135,8 @@ Your Docker Hub account is **`2026ht66052`**, so:
 ```bash
 export DOCKERHUB_USER=2026ht66052
 echo "export DOCKERHUB_USER=2026ht66052" >> ~/.bashrc
-grep -rl YOUR_DOCKERHUB_USERNAME . | xargs sed -i "s/YOUR_DOCKERHUB_USERNAME/$DOCKERHUB_USER/g"
-grep -rn "YOUR_DOCKERHUB_USERNAME" . || echo "all placeholders replaced"
+grep -rl 2026ht66052 . | xargs sed -i "s/2026ht66052/$DOCKERHUB_USER/g"
+grep -rn "2026ht66052" . || echo "all placeholders replaced"
 
 git add -A
 git commit -m "ci: point image builds at the 2026ht66052 Docker Hub repository"

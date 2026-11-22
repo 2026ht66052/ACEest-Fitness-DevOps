@@ -5,9 +5,9 @@ service, Pytest test suite, Jenkins pipeline, SonarQube quality gate, Docker
 image published to Docker Hub, and Kubernetes deployment with **five**
 progressive delivery strategies plus automated rollback.
 
-> **Before you run anything:** replace `YOUR_DOCKERHUB_USERNAME` with your own
+> **Before you run anything:** replace `2026ht66052` with your own
 > Docker Hub username in `Jenkinsfile` and in every file under `k8s/`
-> (`grep -rl YOUR_DOCKERHUB_USERNAME .` finds them all).
+> (`grep -rl 2026ht66052 .` finds them all).
 
 ---
 

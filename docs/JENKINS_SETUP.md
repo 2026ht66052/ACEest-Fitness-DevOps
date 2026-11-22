@@ -125,13 +125,13 @@ New Item → **Pipeline** → name `aceest-fitness-cicd`.
 In `Jenkinsfile`:
 
 ```groovy
-DOCKERHUB_USER = 'YOUR_DOCKERHUB_USERNAME'   // <-- your username
+DOCKERHUB_USER = '2026ht66052'   // <-- your username
 ```
 
 And in the manifests:
 
 ```bash
-grep -rl YOUR_DOCKERHUB_USERNAME . | xargs sed -i 's/YOUR_DOCKERHUB_USERNAME/yourname/g'
+grep -rl 2026ht66052 . | xargs sed -i 's/2026ht66052/yourname/g'
 ```
 
 ## 9. What a green build looks like
@@ -162,5 +162,5 @@ Kubernetes manifests used for the deployment.
 | `permission denied /var/run/docker.sock` | Jenkins container must run as root (it does in the compose file) |
 | `waitForQualityGate` hangs | SonarQube cannot reach Jenkins — set the webhook under SonarQube → Administration → Configuration → Webhooks to `http://aceest-jenkins:8080/sonarqube-webhook/` |
 | `The server could not find the requested resource` on deploy | wrong namespace, or `kubectl apply -f k8s/base/namespace.yaml` was skipped |
-| `ImagePullBackOff` | the image tag is not on Docker Hub yet, or `YOUR_DOCKERHUB_USERNAME` was not replaced |
+| `ImagePullBackOff` | the image tag is not on Docker Hub yet, or `2026ht66052` was not replaced |
 | Pod `CrashLoopBackOff` with a permissions error | `/data` must be writable; the manifests mount an `emptyDir` for exactly this |

@@ -11,7 +11,7 @@ Work top to bottom. Everything marked **YOU** needs your own account values.
 
 ```bash
 export DOCKERHUB_USER=yourname                 # YOU
-grep -rl YOUR_DOCKERHUB_USERNAME . | xargs sed -i "s/YOUR_DOCKERHUB_USERNAME/$DOCKERHUB_USER/g"
+grep -rl 2026ht66052 . | xargs sed -i "s/2026ht66052/$DOCKERHUB_USER/g"
 grep -rn "<your-username>" docs/               # fix the URLs in docs/REPORT.md
 ```
 

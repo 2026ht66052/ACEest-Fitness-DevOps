@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-DOCKERHUB_USER ?= YOUR_DOCKERHUB_USERNAME
+DOCKERHUB_USER ?= 2026ht66052
 APP_VERSION    ?= 3.2.4
 IMAGE          := $(DOCKERHUB_USER)/aceest-fitness
 NAMESPACE      ?= aceest
