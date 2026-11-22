@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}New client — ACEest Fitness{% endblock %}
+{% block content %}
+<h1>Client intake</h1>
+<form method="post" action="{{ url_for('web.create_client') }}" class="stack">
+  <label>Name <input name="name" required value="{{ client.name if client else '' }}"></label>
+  <label>Age <input name="age" type="number" min="0" max="120" value="{{ client.age if client else '' }}"></label>
+  <label>Height (cm) <input name="height" type="number" step="0.1" min="0" value="{{ client.height if client else '' }}"></label>
+  <label>Weight (kg) <input name="weight" type="number" step="0.1" min="0" required value="{{ client.weight if client else '' }}"></label>
+  <label>Program
+    <select name="program" required>
+      <option value="">Select a program…</option>
+      {% for name in programs %}
+      <option value="{{ name }}" {% if client and client.program == name %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Target weight (kg) <input name="target_weight" type="number" step="0.1" min="0" value="{{ client.target_weight if client else '' }}"></label>
+  <label>Target adherence (%) <input name="target_adherence" type="number" min="0" max="100" value="{{ client.target_adherence if client else '' }}"></label>
+  <button type="submit">Save client</button>
+</form>
+{% endblock %}

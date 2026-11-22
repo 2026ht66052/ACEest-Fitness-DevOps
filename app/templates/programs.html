@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Programs — ACEest Fitness{% endblock %}
+{% block content %}
+<h1>Training programs</h1>
+<div class="grid">
+  {% for name, meta in programs.items() %}
+  <article class="panel">
+    <h2>{{ name }}</h2>
+    <p>{{ meta.desc }}</p>
+    <ul>
+      <li><strong>Focus:</strong> {{ meta.focus }}</li>
+      <li><strong>Calorie factor:</strong> {{ meta.factor }} kcal/kg</li>
+      <li><strong>Nutrition:</strong> {{ meta.diet }}</li>
+    </ul>
+  </article>
+  {% endfor %}
+</div>
+{% endblock %}

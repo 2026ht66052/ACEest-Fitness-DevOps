@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ client.name }} — ACEest Fitness{% endblock %}
+{% block content %}
+<h1>{{ client.name }}</h1>
+
+<section class="cards">
+  <div class="card"><span class="label">Program</span><span class="value small">{{ client.program }}</span></div>
+  <div class="card"><span class="label">Calories</span><span class="value">{{ client.calories or '-' }}</span></div>
+  <div class="card"><span class="label">BMI</span><span class="value">{{ bmi or '-' }}</span>
+    {% if bmi_category %}<span class="label">{{ bmi_category }}</span>{% endif %}
+  </div>
+  <div class="card"><span class="label">Avg adherence</span><span class="value">{{ summary.average_adherence }}%</span>
+    <span class="label">{{ summary.trend }}</span>
+  </div>
+</section>
+
+{% if bmi_note %}<p class="note">{{ bmi_note }}</p>{% endif %}
+
+<h2>Program detail</h2>
+<p>{{ program.desc or 'No program notes.' }}</p>
+{% if program.diet %}<p><strong>Nutrition:</strong> {{ program.diet }}</p>{% endif %}
+
+<h2>Log weekly adherence</h2>
+<form method="post" action="{{ url_for('web.log_progress', name=client.name) }}" class="inline">
+  <input name="week" placeholder="Week label (optional)">
+  <input name="adherence" type="number" min="0" max="100" required placeholder="Adherence %">
+  <button type="submit">Log</button>
+</form>
+
+<h2>Progress history</h2>
+{% if progress %}
+<table>
+  <thead><tr><th>Week</th><th>Adherence</th></tr></thead>
+  <tbody>
+    {% for row in progress %}
+    <tr><td>{{ row.week }}</td><td>
+      <div class="bar"><span style="width: {{ row.adherence }}%"></span></div>{{ row.adherence }}%
+    </td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No weeks logged yet.</p>
+{% endif %}
+
+<h2>Recent workouts</h2>
+{% if workouts %}
+<table>
+  <thead><tr><th>Date</th><th>Type</th><th>Duration</th><th>Notes</th></tr></thead>
+  <tbody>
+    {% for w in workouts %}
+    <tr><td>{{ w.date }}</td><td>{{ w.workout_type }}</td><td>{{ w.duration_min }} min</td><td>{{ w.notes }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No workouts logged. Use <code>POST /api/v1/clients/{{ client.name }}/workouts</code>.</p>
+{% endif %}
+{% endblock %}

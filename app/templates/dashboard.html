@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Gym dashboard</h1>
+
+<section class="cards">
+  <div class="card">
+    <span class="label">Active clients</span>
+    <span class="value">{{ totals.clients }}</span>
+  </div>
+  <div class="card">
+    <span class="label">Avg calorie target</span>
+    <span class="value">{{ totals.avg_calories | round(0) | int }}</span>
+  </div>
+  <div class="card">
+    <span class="label">Avg adherence</span>
+    <span class="value">{{ avg_adherence }}%</span>
+  </div>
+  <div class="card">
+    <span class="label">Programs offered</span>
+    <span class="value">{{ programs | length }}</span>
+  </div>
+</section>
+
+<h2>Clients</h2>
+{% if clients %}
+<table>
+  <thead>
+    <tr><th>Name</th><th>Age</th><th>Weight</th><th>Program</th><th>Calories</th></tr>
+  </thead>
+  <tbody>
+    {% for client in clients %}
+    <tr>
+      <td><a href="{{ url_for('web.client_detail', name=client.name) }}">{{ client.name }}</a></td>
+      <td>{{ client.age or '-' }}</td>
+      <td>{{ client.weight or '-' }} kg</td>
+      <td>{{ client.program }}</td>
+      <td>{{ client.calories or '-' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No clients yet. <a href="{{ url_for('web.new_client_form') }}">Add the first one.</a></p>
+{% endif %}
+{% endblock %}
