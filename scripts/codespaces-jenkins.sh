@@ -65,6 +65,7 @@ mkdir -p "$JENKINS_HOME"
 
 log "Starting Jenkins on port ${JENKINS_PORT}"
 JENKINS_HOME="$JENKINS_HOME" nohup "$JAVA_BIN" \
+  -Xmx768m \
   -Djava.awt.headless=true \
   -Djenkins.install.runSetupWizard=true \
   -jar "$JENKINS_WAR" \
