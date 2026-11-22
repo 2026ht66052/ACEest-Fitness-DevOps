@@ -1,10 +1,25 @@
-venv/
 __pycache__/
-.pytest_cache/
 *.py[cod]
-*.db
-.DS_Store
+.venv/
+venv/
 .env
-.env.*
-.idea/
+
+# test & coverage artefacts
+.pytest_cache/
+.coverage
+coverage.xml
+test-results.xml
+htmlcov/
+bandit-report.json
+
+# sonar scanner working directory
+.scannerwork/
+
+# local database
+*.db
+data/
+
+# editors / OS
 .vscode/
+.idea/
+.DS_Store
