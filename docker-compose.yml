@@ -1,0 +1,29 @@
+# Local development stack for the application only.
+#   docker compose up --build
+# The app is then available on http://localhost:5000
+services:
+  app:
+    build:
+      context: .
+      args:
+        APP_VERSION: "3.2.4"
+        APP_TRACK: "local"
+    image: aceest-fitness:local
+    ports:
+      - "5000:5000"
+    environment:
+      APP_VERSION: "3.2.4"
+      APP_TRACK: "local"
+      DATABASE_PATH: /data/aceest_fitness.db
+      SECRET_KEY: local-dev-secret
+    volumes:
+      - app-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:5000/health')"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  app-data:
