@@ -1,0 +1,71 @@
+{
+  "name": "ACEest Fitness DevOps Lab",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+
+  // A 4-core machine keeps Jenkins + a k3d cluster + ~15 pods comfortable.
+  // On the GitHub Free plan this consumes 4 core-hours per wall-clock hour
+  // (120 included per month = 30 hours). Drop to 2 if you want 60 hours.
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "16gb",
+    "storage": "32gb"
+  },
+
+  "features": {
+    // Docker runs INSIDE the codespace — nothing is installed on your laptop.
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    },
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "latest",
+      "helm": "latest",
+      "minikube": "none"
+    },
+    // Java 17 is required to run the Jenkins WAR.
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "installMaven": false,
+      "installGradle": false
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12",
+      "installTools": true
+    }
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "forwardPorts": [8080, 5000, 30080, 30081, 30082, 30083, 30084, 30085, 30086, 30090],
+
+  "portsAttributes": {
+    "8080":  { "label": "Jenkins",              "onAutoForward": "notify" },
+    "5000":  { "label": "Flask (dev server)",   "onAutoForward": "silent" },
+    "30080": { "label": "App - rolling/stable", "onAutoForward": "silent" },
+    "30081": { "label": "Blue-green ACTIVE",    "onAutoForward": "silent" },
+    "30082": { "label": "Blue preview",         "onAutoForward": "silent" },
+    "30083": { "label": "Green preview",        "onAutoForward": "silent" },
+    "30084": { "label": "Canary direct",        "onAutoForward": "silent" },
+    "30085": { "label": "A/B variant A",        "onAutoForward": "silent" },
+    "30086": { "label": "A/B variant B",        "onAutoForward": "silent" },
+    "30090": { "label": "NGINX ingress",        "onAutoForward": "silent" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "redhat.vscode-yaml",
+        "SonarSource.sonarlint-vscode"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
+        "python.testing.pytestEnabled": true
+      }
+    }
+  },
+
+  "remoteUser": "vscode"
+}
