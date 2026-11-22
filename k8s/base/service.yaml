@@ -1,0 +1,43 @@
+# Primary service. Its selector deliberately omits `track`, so it load-balances
+# across whatever tracks are present — this is what makes the canary, shadow
+# and rolling strategies work without a service mesh.
+#
+# For blue-green the selector is narrowed to a single colour; see
+# k8s/blue-green/service-active.yaml.
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+spec:
+  type: ClusterIP
+  selector:
+    app: aceest-fitness
+    role: serving
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+      protocol: TCP
+---
+# NodePort service used to expose the app from Minikube without an ingress
+# controller:  minikube service aceest-fitness-nodeport -n aceest --url
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-nodeport
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+spec:
+  type: NodePort
+  selector:
+    app: aceest-fitness
+    role: serving
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+      nodePort: 30080

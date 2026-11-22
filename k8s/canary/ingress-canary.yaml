@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# STRATEGY 3 (alternative) — percentage-based canary at the ingress layer.
+#
+# Requires the NGINX ingress controller. The weight is honoured per request,
+# which gives a far more precise split than replica ratios:
+#
+#   kubectl -n aceest annotate ingress aceest-fitness-canary \
+#     nginx.ingress.kubernetes.io/canary-weight="30" --overwrite
+#
+# Rollback = set the weight to 0 (or delete this ingress); the stable ingress
+# keeps serving every request.
+# ---------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aceest-fitness-canary
+  namespace: aceest
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "10"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: aceest-fitness
+    strategy: canary
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: aceest.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aceest-fitness-canary
+                port:
+                  number: 80

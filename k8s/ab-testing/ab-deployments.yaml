@@ -1,0 +1,129 @@
+# ---------------------------------------------------------------------------
+# STRATEGY 5 — A/B TESTING
+#
+# Unlike a canary (which is about release risk and splits traffic randomly),
+# A/B testing routes *deterministically* on a request attribute so that a given
+# user always sees the same variant and the business metric can be attributed.
+#
+# Here the split is driven by the `X-Variant: B` header (or the `variant=B`
+# cookie) using the NGINX ingress canary-by-header feature:
+#
+#   curl -H "Host: aceest.local" -H "X-Variant: B" http://$(minikube ip)/version
+#     -> {"track": "variant-b", ...}
+#   curl -H "Host: aceest.local" http://$(minikube ip)/version
+#     -> {"track": "variant-a", ...}
+#
+# Variant A is the control (current programme pricing/copy), variant B the
+# experiment. Rollback: delete the variant-B ingress, or set canary-weight 0.
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-variant-a
+  namespace: aceest
+  labels: { app: aceest-fitness, variant: a, strategy: ab-testing }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: aceest-fitness, variant: a }
+  template:
+    metadata:
+      labels: { app: aceest-fitness, variant: a, track: variant-a }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 10001, fsGroup: 10001 }
+      containers:
+        - name: app
+          image: YOUR_DOCKERHUB_USERNAME/aceest-fitness:3.1.2
+          imagePullPolicy: IfNotPresent
+          ports: [{ name: http, containerPort: 5000 }]
+          env:
+            - { name: APP_VERSION, value: "3.1.2" }
+            - { name: APP_TRACK,   value: "variant-a" }
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef: { name: aceest-secret, key: SECRET_KEY }
+          envFrom: [{ configMapRef: { name: aceest-config } }]
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits:   { cpu: 500m, memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp,  mountPath: /tmp }
+      volumes:
+        - { name: data, emptyDir: {} }
+        - { name: tmp,  emptyDir: {} }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-variant-b
+  namespace: aceest
+  labels: { app: aceest-fitness, variant: b, strategy: ab-testing }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: aceest-fitness, variant: b }
+  template:
+    metadata:
+      labels: { app: aceest-fitness, variant: b, track: variant-b }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 10001, fsGroup: 10001 }
+      containers:
+        - name: app
+          image: YOUR_DOCKERHUB_USERNAME/aceest-fitness:3.2.4
+          imagePullPolicy: IfNotPresent
+          ports: [{ name: http, containerPort: 5000 }]
+          env:
+            - { name: APP_VERSION, value: "3.2.4" }
+            - { name: APP_TRACK,   value: "variant-b" }
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef: { name: aceest-secret, key: SECRET_KEY }
+          envFrom: [{ configMapRef: { name: aceest-config } }]
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits:   { cpu: 500m, memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp,  mountPath: /tmp }
+      volumes:
+        - { name: data, emptyDir: {} }
+        - { name: tmp,  emptyDir: {} }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-variant-a
+  namespace: aceest
+  labels: { app: aceest-fitness, strategy: ab-testing }
+spec:
+  type: NodePort
+  selector: { app: aceest-fitness, variant: a }
+  ports: [{ name: http, port: 80, targetPort: 5000, nodePort: 30085 }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-variant-b
+  namespace: aceest
+  labels: { app: aceest-fitness, strategy: ab-testing }
+spec:
+  type: NodePort
+  selector: { app: aceest-fitness, variant: b }
+  ports: [{ name: http, port: 80, targetPort: 5000, nodePort: 30086 }]

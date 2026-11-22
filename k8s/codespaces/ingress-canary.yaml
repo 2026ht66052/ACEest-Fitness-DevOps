@@ -1,0 +1,62 @@
+# ---------------------------------------------------------------------------
+# Codespaces variant of the CANARY ingress pair.
+#
+# Difference from k8s/canary/ingress-canary.yaml: no `host:` rule. GitHub's
+# port-forwarding proxy rewrites the Host header to
+# <codespace>-30090.app.github.dev, so a rule pinned to `aceest.local` would
+# never match. A host-less rule matches any Host, including the forwarded one.
+#
+# NOTE: `aceest-fitness-primary` is intentionally the SAME resource name as in
+# ingress-ab.yaml. Both own "/" and an nginx canary ingress must pair with a
+# main ingress on the same host+path, so only one pair can be active at a
+# time — applying one file replaces the other's backend. scripts/deploy.sh
+# handles the swap; if applying by hand, delete the other canary ingress first.
+# ---------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aceest-fitness-primary
+  namespace: aceest
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: aceest-fitness
+    env: codespaces
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aceest-fitness
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aceest-fitness-canary
+  namespace: aceest
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "10"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: aceest-fitness
+    env: codespaces
+    strategy: canary
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aceest-fitness-canary
+                port:
+                  number: 80

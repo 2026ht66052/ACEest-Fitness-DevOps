@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------------------
+# STRATEGY 4 (alternative) — shadow traffic with Istio.
+#
+# Apply only if Istio is installed:  minikube addons enable istio
+# (or istioctl install --set profile=demo)
+#
+# 100% of requests are routed to the stable subset and 100% of them are also
+# mirrored to the shadow subset. Istio fires the mirrored request and discards
+# the response, so latency and errors in the shadow are invisible to users.
+# ---------------------------------------------------------------------------
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: aceest-fitness
+  namespace: aceest
+spec:
+  host: aceest-fitness.aceest.svc.cluster.local
+  subsets:
+    - name: stable
+      labels:
+        track: stable
+    - name: shadow
+      labels:
+        track: shadow
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: aceest-fitness
+  namespace: aceest
+spec:
+  hosts:
+    - aceest-fitness.aceest.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: aceest-fitness.aceest.svc.cluster.local
+            subset: stable
+          weight: 100
+      mirror:
+        host: aceest-fitness-shadow.aceest.svc.cluster.local
+      mirrorPercentage:
+        value: 100.0

@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# Codespaces variant of the SHADOW mirror ingress (host-less).
+#
+# Every request served by the stable backend is additionally copied to the
+# shadow service. nginx discards the mirrored response, so a fault in the
+# shadow version cannot reach a user — which is the entire point.
+# ---------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aceest-fitness-primary
+  namespace: aceest
+  annotations:
+    nginx.ingress.kubernetes.io/mirror-target: "http://aceest-fitness-shadow.aceest.svc.cluster.local/$request_uri"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: aceest-fitness
+    env: codespaces
+    strategy: shadow
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aceest-fitness
+                port:
+                  number: 80

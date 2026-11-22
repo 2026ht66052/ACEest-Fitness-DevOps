@@ -1,0 +1,62 @@
+# ---------------------------------------------------------------------------
+# STRATEGY 5 — A/B routing rules (NGINX ingress controller).
+#
+# `aceest-fitness-ab` is the control path: everything lands on variant A.
+# `aceest-fitness-ab-variant-b` is a canary-annotated ingress that only
+# matches when the request carries `X-Variant: B` — a deterministic, sticky
+# assignment rather than a random percentage.
+#
+# To run a 50/50 random experiment instead, swap canary-by-header for
+# canary-weight: "50".
+# ---------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aceest-fitness-ab
+  namespace: aceest
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: aceest-fitness
+    strategy: ab-testing
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: aceest.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aceest-fitness-variant-a
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aceest-fitness-ab-variant-b
+  namespace: aceest
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-by-header: "X-Variant"
+    nginx.ingress.kubernetes.io/canary-by-header-value: "B"
+    nginx.ingress.kubernetes.io/canary-by-cookie: "variant_b"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: aceest-fitness
+    strategy: ab-testing
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: aceest.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aceest-fitness-variant-b
+                port:
+                  number: 80

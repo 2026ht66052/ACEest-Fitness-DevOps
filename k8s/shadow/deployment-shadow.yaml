@@ -1,0 +1,127 @@
+# ---------------------------------------------------------------------------
+# STRATEGY 4 — SHADOW (dark launch / traffic mirroring)
+#
+# The shadow deployment runs the new version but is deliberately EXCLUDED from
+# the user-facing service: note that its pod labels omit `role: serving`.
+# Production traffic is *copied* to it; its responses are discarded, so a fault
+# in the new version cannot affect a single user.
+#
+# Two ways to mirror traffic are provided:
+#
+#  1. NGINX ingress mirroring (no service mesh needed) — see the annotations on
+#     the stable ingress below.
+#  2. Istio VirtualService with `mirrorPercentage` — see shadow-istio.yaml.
+#
+# Rollback is simply deleting the shadow deployment: nothing user-facing has
+# changed, which is precisely the point of shadow testing.
+#
+#   ./scripts/deploy.sh --strategy shadow --image <img> --version 3.2.4
+#   kubectl -n aceest logs -l track=shadow -f        # observe mirrored load
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-shadow
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+    track: shadow
+    strategy: shadow
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      track: shadow
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        track: shadow
+        # role: serving is intentionally ABSENT — no live traffic reaches here.
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+      containers:
+        - name: app
+          image: YOUR_DOCKERHUB_USERNAME/aceest-fitness:3.2.4
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5000
+          env:
+            - name: APP_VERSION
+              value: "3.2.4"
+            - name: APP_TRACK
+              value: "shadow"
+            - name: LOG_LEVEL
+              value: "debug"          # verbose logs: the point is observation
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef: { name: aceest-secret, key: SECRET_KEY }
+          envFrom:
+            - configMapRef: { name: aceest-config }
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits:   { cpu: 500m, memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp,  mountPath: /tmp }
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+---
+# Internal-only service for the shadow pods (mirror destination + debugging).
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-shadow
+  namespace: aceest
+  labels: { app: aceest-fitness, strategy: shadow }
+spec:
+  type: ClusterIP
+  selector: { app: aceest-fitness, track: shadow }
+  ports:
+    - { name: http, port: 80, targetPort: 5000 }
+---
+# Option 1: NGINX ingress mirroring. Every request served by the stable
+# backend is additionally copied to the shadow service; the mirrored response
+# is ignored by the controller.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aceest-fitness-mirror
+  namespace: aceest
+  annotations:
+    nginx.ingress.kubernetes.io/mirror-target: "http://aceest-fitness-shadow.aceest.svc.cluster.local/$request_uri"
+    nginx.ingress.kubernetes.io/mirror-host: "aceest.local"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: aceest-fitness
+    strategy: shadow
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: aceest.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aceest-fitness
+                port:
+                  number: 80

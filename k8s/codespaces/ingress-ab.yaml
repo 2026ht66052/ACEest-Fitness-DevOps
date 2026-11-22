@@ -1,0 +1,61 @@
+# ---------------------------------------------------------------------------
+# Codespaces variant of the A/B TESTING ingress pair (host-less — see the note
+# in ingress-canary.yaml for why).
+#
+# Control traffic goes to variant A. A request carrying `X-Variant: B` is
+# routed to variant B instead — deterministic and sticky, which is what makes
+# an experiment attributable, unlike a canary's random percentage split.
+#
+#   curl https://<codespace>-30090.app.github.dev/version
+#   curl -H 'X-Variant: B' https://<codespace>-30090.app.github.dev/version
+# ---------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aceest-fitness-primary
+  namespace: aceest
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: aceest-fitness
+    env: codespaces
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aceest-fitness-variant-a
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aceest-fitness-ab-variant-b
+  namespace: aceest
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-by-header: "X-Variant"
+    nginx.ingress.kubernetes.io/canary-by-header-value: "B"
+    nginx.ingress.kubernetes.io/canary-by-cookie: "variant_b"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: aceest-fitness
+    env: codespaces
+    strategy: ab-testing
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aceest-fitness-variant-b
+                port:
+                  number: 80

@@ -1,0 +1,100 @@
+# ---------------------------------------------------------------------------
+# STRATEGY 3 — CANARY RELEASE
+#
+# Stable and canary are separate Deployments behind the SAME service
+# (`aceest-fitness`, whose selector matches `role: serving`). Because the
+# service spreads requests evenly over all matching endpoints, the traffic
+# share is controlled purely by the replica ratio:
+#
+#   stable=9, canary=1  -> ~10% of traffic on the new version
+#   stable=5, canary=5  -> ~50%
+#   stable=0, canary=10 -> 100% (promotion)
+#
+#   ./scripts/deploy.sh --strategy canary --image <img> --version 3.2.4
+#   ./scripts/canary-weight.sh 30        # shift to ~30%
+#   ./scripts/rollback.sh --strategy canary   # scale canary to 0
+#
+# An ingress-based weight split is also provided (see ingress-canary.yaml) for
+# clusters running the NGINX ingress controller.
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-canary
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+    track: canary
+    strategy: canary
+spec:
+  replicas: 1                 # ~10% when stable runs 9 replicas
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        role: serving         # <-- joins the shared service
+        track: canary
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+      containers:
+        - name: app
+          image: YOUR_DOCKERHUB_USERNAME/aceest-fitness:3.2.4
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5000
+          env:
+            - name: APP_VERSION
+              value: "3.2.4"
+            - name: APP_TRACK
+              value: "canary"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef: { name: aceest-secret, key: SECRET_KEY }
+          envFrom:
+            - configMapRef: { name: aceest-config }
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits:   { cpu: 500m, memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp,  mountPath: /tmp }
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+---
+# Service that targets ONLY the canary pods, so the canary can be verified
+# directly before its traffic share is increased.
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-canary
+  namespace: aceest
+  labels: { app: aceest-fitness, strategy: canary }
+spec:
+  type: NodePort
+  selector: { app: aceest-fitness, track: canary }
+  ports:
+    - { name: http, port: 80, targetPort: 5000, nodePort: 30084 }
