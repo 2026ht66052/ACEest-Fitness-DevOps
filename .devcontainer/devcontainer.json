@@ -24,7 +24,7 @@
     },
     // Java 17 is required to run the Jenkins WAR.
     "ghcr.io/devcontainers/features/java:1": {
-      "version": "17",
+      "version": "21",
       "installMaven": false,
       "installGradle": false
     },

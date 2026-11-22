@@ -24,6 +24,15 @@ JENKINS_PORT="${JENKINS_PORT:-8080}"
 PID_FILE="$HOME/.jenkins.pid"
 LOG_FILE="$HOME/jenkins.log"
 
+# Jenkins LTS requires Java 21 or newer. The dev container also has an older
+# JDK on PATH via SDKMAN, which would shadow it, so resolve the newest
+# installed JDK explicitly rather than trusting `java`.
+if [[ -z "${JAVA_BIN:-}" ]]; then
+  _jdk="$(ls -d /usr/lib/jvm/java-2[1-9]-openjdk-* 2>/dev/null | sort -V | tail -1)"
+  JAVA_BIN="${_jdk:+$_jdk/bin/java}"
+fi
+[[ -n "${JAVA_BIN:-}" && -x "$JAVA_BIN" ]] || JAVA_BIN="$(command -v java)"
+
 log() { printf '\n\033[1;33m==> %s\033[0m\n' "$*"; }
 
 case "${1:-start}" in
@@ -55,7 +64,7 @@ fi
 mkdir -p "$JENKINS_HOME"
 
 log "Starting Jenkins on port ${JENKINS_PORT}"
-JENKINS_HOME="$JENKINS_HOME" nohup java \
+JENKINS_HOME="$JENKINS_HOME" nohup "$JAVA_BIN" \
   -Djava.awt.headless=true \
   -Djenkins.install.runSetupWizard=true \
   -jar "$JENKINS_WAR" \
@@ -98,4 +107,4 @@ log "Tool availability inside Jenkins' environment"
 printf '    docker  : %s\n' "$(docker --version 2>/dev/null || echo MISSING)"
 printf '    kubectl : %s\n' "$(kubectl version --client -o yaml 2>/dev/null | grep gitVersion | head -1 | awk '{print $2}' || echo MISSING)"
 printf '    python3 : %s\n' "$(python3 -V 2>/dev/null || echo MISSING)"
-printf '    java    : %s\n' "$(java -version 2>&1 | head -1)"
+printf '    java    : %s\n' "$("$JAVA_BIN" -version 2>&1 | head -1)"
