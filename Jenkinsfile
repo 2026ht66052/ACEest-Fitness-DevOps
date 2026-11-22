@@ -127,30 +127,26 @@ pipeline {
       }
     }
 
-    stage('SonarQube analysis') {
+    stage('SonarQube analysis and quality gate') {
       when { expression { return !params.SKIP_SONAR } }
       steps {
-        script {
-          def scannerHome = tool 'SonarScanner'
-          withSonarQubeEnv('SonarQube') {
-            sh """
-              ${scannerHome}/bin/sonar-scanner \
-                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                -Dsonar.projectVersion=${params.APP_VERSION} \
-                -Dsonar.python.coverage.reportPaths=coverage.xml \
-                -Dsonar.python.flake8.reportPaths=flake8-report.txt \
-                ${SONAR_ORG ? "-Dsonar.organization=${SONAR_ORG}" : ''}
-            """
-          }
-        }
-      }
-    }
-
-    stage('Quality gate') {
-      when { expression { return !params.SKIP_SONAR } }
-      steps {
-        timeout(time: 10, unit: 'MINUTES') {
-          waitForQualityGate abortPipeline: true
+        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+          sh '''
+            set -eu
+            # The scanner runs as a container, so there is no Jenkins scanner
+            # tool or SonarQube server configuration to maintain, and the
+            # command is identical to the one developers run locally.
+            #
+            # sonar-project.properties sets sonar.qualitygate.wait=true, so the
+            # scanner polls the gate itself and exits non-zero when it is red.
+            # That removes the need for a webhook from SonarQube Cloud back
+            # into Jenkins, which a private build server cannot receive.
+            docker run --rm --network=host \
+              -v "$PWD:/usr/src" \
+              -e SONAR_HOST_URL=https://sonarcloud.io \
+              -e SONAR_TOKEN="$SONAR_TOKEN" \
+              sonarsource/sonar-scanner-cli
+          '''
         }
       }
     }
