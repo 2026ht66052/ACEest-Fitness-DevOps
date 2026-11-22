@@ -38,7 +38,7 @@ run:  ## Run the app locally on :5000
 	DATABASE_PATH=./data/aceest_fitness.db .venv/bin/flask --app wsgi run --debug --port 5000
 
 docker-build:  ## Build the container image
-	docker build --build-arg APP_VERSION=$(APP_VERSION) \
+	docker build --network=host --build-arg APP_VERSION=$(APP_VERSION) \
 	             --build-arg GIT_COMMIT=$$(git rev-parse --short HEAD 2>/dev/null || echo dev) \
 	             --build-arg BUILD_DATE=$$(date -u +%FT%TZ) \
 	             -t $(IMAGE):$(APP_VERSION) -t $(IMAGE):latest .

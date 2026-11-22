@@ -159,7 +159,7 @@ pipeline {
       steps {
         sh '''
           set -eu
-          docker build \
+          docker build --network=host \
             --build-arg APP_VERSION=${APP_VERSION_ARG} \
             --build-arg GIT_COMMIT=${GIT_COMMIT_SHORT} \
             --build-arg BUILD_DATE=${BUILD_DATE} \

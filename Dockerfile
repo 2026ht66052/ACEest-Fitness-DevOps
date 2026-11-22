@@ -9,10 +9,18 @@
 # ----------------------------- build stage ---------------------------------
 FROM python:3.12-slim AS builder
 
+# PyPI can be slow to reach from a CI container. pip's defaults (15s read
+# timeout, 5 retries) abandon the build mid-download; these do not. The pip
+# self-upgrade is dropped as well — it was a second round trip for no benefit,
+# since the slim image's pip already resolves every dependency here.
+ENV PIP_DEFAULT_TIMEOUT=120 \
+    PIP_RETRIES=10 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
 WORKDIR /build
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip wheel \
-    && pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
+RUN pip wheel --wheel-dir /wheels -r requirements.txt
 
 # ---------------------------- runtime stage --------------------------------
 FROM python:3.12-slim AS runtime
