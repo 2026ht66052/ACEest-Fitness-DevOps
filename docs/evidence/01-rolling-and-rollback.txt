@@ -1,0 +1,175 @@
+
+[1;33m==> Ensuring namespace and shared resources exist[0m
+namespace/aceest unchanged
+configmap/aceest-config unchanged
+secret/aceest-secret configured
+service/aceest-fitness unchanged
+service/aceest-fitness-nodeport unchanged
+
+[1;33m==> ROLLING UPDATE -> 2026ht66052/aceest-fitness:3.1.2[0m
+deployment.apps/aceest-fitness configured
+poddisruptionbudget.policy/aceest-fitness configured
+horizontalpodautoscaler.autoscaling/aceest-fitness unchanged
+Flag --record has been deprecated, --record will be removed in the future
+deployment.apps/aceest-fitness image updated
+deployment.apps/aceest-fitness env updated
+deployment.apps/aceest-fitness annotated
+
+[1;33m==> Waiting for aceest-fitness to become available[0m
+Waiting for deployment "aceest-fitness" rollout to finish: 0 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 0 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 0 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 0 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+deployment "aceest-fitness" successfully rolled out
+deployment.apps/aceest-fitness 
+REVISION  CHANGE-CAUSE
+9         image=2026ht66052/aceest-fitness:3.2.4-12 version=3.2.4 strategy=rolling at 2026-11-23T11:38:40Z
+10        initial rollout
+11        initial rollout
+12        image=2026ht66052/aceest-fitness:3.1.2 version=3.1.2 strategy=rolling at 2026-11-23T11:54:55Z
+
+
+[1;33m==> Deployment summary[0m
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS   IMAGES                             SELECTOR
+deployment.apps/aceest-fitness   3/3     3            3           5h1m   app          2026ht66052/aceest-fitness:3.1.2   app=aceest-fitness,track=stable
+
+NAME                              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE   SELECTOR
+service/aceest-fitness            ClusterIP   10.43.98.115    <none>        80/TCP         21h   app=aceest-fitness,role=serving
+service/aceest-fitness-nodeport   NodePort    10.43.174.127   <none>        80:30080/TCP   21h   app=aceest-fitness,role=serving
+
+NAME                                  READY   STATUS        RESTARTS   AGE   IP           NODE                  NOMINATED NODE   READINESS GATES
+pod/aceest-fitness-584865f7fc-mbr5x   0/1     Terminating   0          27s   10.42.0.92   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7669459f88-5bj9q   0/1     Terminating   0          28s   10.42.0.91   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7d796cf5f6-ft7qp   0/1     Completed     0          16m   10.42.0.88   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-85fdc9754d-b6gkd   1/1     Running       0          26s   10.42.0.93   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-85fdc9754d-dlkd8   1/1     Running       0          9s    10.42.0.95   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-85fdc9754d-rrg7w   1/1     Running       0          17s   10.42.0.94   k3d-aceest-server-0   <none>           <none>
+
+### now serving:
+{"app":"aceest-fitness","instance":"aceest-fitness-85fdc9754d-rrg7w","track":"stable","version":"3.1.2"}
+
+
+[1;33m==> Ensuring namespace and shared resources exist[0m
+namespace/aceest unchanged
+configmap/aceest-config unchanged
+secret/aceest-secret configured
+service/aceest-fitness unchanged
+service/aceest-fitness-nodeport unchanged
+
+[1;33m==> ROLLING UPDATE -> 2026ht66052/aceest-fitness:3.2.4[0m
+deployment.apps/aceest-fitness configured
+poddisruptionbudget.policy/aceest-fitness configured
+horizontalpodautoscaler.autoscaling/aceest-fitness unchanged
+Flag --record has been deprecated, --record will be removed in the future
+deployment.apps/aceest-fitness annotated
+
+[1;33m==> Waiting for aceest-fitness to become available[0m
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+deployment "aceest-fitness" successfully rolled out
+deployment.apps/aceest-fitness 
+REVISION  CHANGE-CAUSE
+9         image=2026ht66052/aceest-fitness:3.2.4-12 version=3.2.4 strategy=rolling at 2026-11-23T11:38:40Z
+11        initial rollout
+12        image=2026ht66052/aceest-fitness:3.1.2 version=3.1.2 strategy=rolling at 2026-11-23T11:54:55Z
+13        image=2026ht66052/aceest-fitness:3.2.4 version=3.2.4 strategy=rolling at 2026-11-23T11:55:25Z
+
+
+[1;33m==> Deployment summary[0m
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS   IMAGES                             SELECTOR
+deployment.apps/aceest-fitness   3/3     3            3           5h1m   app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,track=stable
+
+NAME                              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE   SELECTOR
+service/aceest-fitness            ClusterIP   10.43.98.115    <none>        80/TCP         21h   app=aceest-fitness,role=serving
+service/aceest-fitness-nodeport   NodePort    10.43.174.127   <none>        80:30080/TCP   21h   app=aceest-fitness,role=serving
+
+NAME                                  READY   STATUS        RESTARTS   AGE   IP           NODE                  NOMINATED NODE   READINESS GATES
+pod/aceest-fitness-7669459f88-6qzdv   1/1     Running       0          25s   10.42.0.96   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7669459f88-cv58d   1/1     Running       0          16s   10.42.0.97   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7669459f88-xxnl5   1/1     Running       0          8s    10.42.0.98   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-85fdc9754d-b6gkd   1/1     Terminating   0          52s   10.42.0.93   k3d-aceest-server-0   <none>           <none>
+
+### after rolling update:
+{"app":"aceest-fitness","instance":"aceest-fitness-7669459f88-xxnl5","track":"stable","version":"3.2.4"}
+
+
+### revision history:
+deployment.apps/aceest-fitness 
+REVISION  CHANGE-CAUSE
+9         image=2026ht66052/aceest-fitness:3.2.4-12 version=3.2.4 strategy=rolling at 2026-11-23T11:38:40Z
+11        initial rollout
+12        image=2026ht66052/aceest-fitness:3.1.2 version=3.1.2 strategy=rolling at 2026-11-23T11:54:55Z
+13        image=2026ht66052/aceest-fitness:3.2.4 version=3.2.4 strategy=rolling at 2026-11-23T11:55:25Z
+
+
+### ROLLBACK:
+
+[1;31m==> ROLLBACK: Reverting deploy/aceest-fitness[0m
+deployment.apps/aceest-fitness 
+REVISION  CHANGE-CAUSE
+9         image=2026ht66052/aceest-fitness:3.2.4-12 version=3.2.4 strategy=rolling at 2026-11-23T11:38:40Z
+11        initial rollout
+12        image=2026ht66052/aceest-fitness:3.1.2 version=3.1.2 strategy=rolling at 2026-11-23T11:54:55Z
+13        image=2026ht66052/aceest-fitness:3.2.4 version=3.2.4 strategy=rolling at 2026-11-23T11:55:25Z
+
+Warning: resource deployments/aceest-fitness was previously managed with 'kubectl apply'. Rolling back will not update the kubectl.kubernetes.io/last-applied-configuration annotation, which may cause unexpected behavior on future 'kubectl apply' operations. Consider using 'kubectl apply' with your previous configuration file instead.
+deployment.apps/aceest-fitness rolled back
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aceest-fitness" rollout to finish: 1 old replicas are pending termination...
+deployment "aceest-fitness" successfully rolled out
+
+[1;31m==> ROLLBACK: Post-rollback state[0m
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/aceest-fitness   3/3     3            3           5h2m
+
+NAME                              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+service/aceest-fitness            ClusterIP   10.43.98.115    <none>        80/TCP         21h
+service/aceest-fitness-nodeport   NodePort    10.43.174.127   <none>        80:30080/TCP   21h
+
+NAME                                  READY   STATUS        RESTARTS   AGE
+pod/aceest-fitness-7669459f88-6qzdv   1/1     Terminating   0          51s
+pod/aceest-fitness-85fdc9754d-7295z   1/1     Running       0          9s
+pod/aceest-fitness-85fdc9754d-b9kbm   1/1     Running       0          25s
+pod/aceest-fitness-85fdc9754d-rkdk4   1/1     Running       0          17s
+
+### after rollback:
+{"app":"aceest-fitness","instance":"aceest-fitness-85fdc9754d-7295z","track":"stable","version":"3.1.2"}
+

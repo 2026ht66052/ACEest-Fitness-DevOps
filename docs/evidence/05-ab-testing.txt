@@ -1,0 +1,140 @@
+
+[1;33m==> Ensuring namespace and shared resources exist[0m
+namespace/aceest unchanged
+configmap/aceest-config unchanged
+secret/aceest-secret configured
+service/aceest-fitness unchanged
+service/aceest-fitness-nodeport unchanged
+deployment.apps/aceest-fitness-variant-a created
+deployment.apps/aceest-fitness-variant-b created
+service/aceest-fitness-variant-a created
+service/aceest-fitness-variant-b created
+
+[1;33m==> Applying the Codespaces (host-less) ab ingress[0m
+ingress.networking.k8s.io/aceest-fitness-primary configured
+ingress.networking.k8s.io/aceest-fitness-ab-variant-b created
+
+[1;33m==> Deploying variant B as 3.2.4 (variant A remains the control)[0m
+deployment.apps/aceest-fitness-variant-b annotated
+
+[1;33m==> Waiting for aceest-fitness-variant-a to become available[0m
+Waiting for deployment "aceest-fitness-variant-a" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "aceest-fitness-variant-a" rollout to finish: 1 of 2 updated replicas are available...
+deployment "aceest-fitness-variant-a" successfully rolled out
+
+[1;33m==> Waiting for aceest-fitness-variant-b to become available[0m
+deployment "aceest-fitness-variant-b" successfully rolled out
+
+[1;36m==> Smoke testing http://aceest-fitness-variant-b.aceest.svc.cluster.local[0m
+--- /health  ---
+{"status":"ok","version":"3.2.4"}
+
+--- /ready   ---
+{"status":"ready","version":"3.2.4"}
+
+--- /version ---
+{"app":"aceest-fitness","instance":"aceest-fitness-variant-b-7df59b67fb-892bf","track":"variant-b","version":"3.2.4"}
+
+--- GET /api/v1/programs ---
+{"count":4,"programs":[{"calorie_factor":22,"description":"3-day full-body fat loss circuit","diet":"Egg whites + oats, grilled chicken + brown rice, fish curry + millet roti","focus":"Conditioning","
+--- POST /api/v1/bmi ---
+{"bmi":26.1,"category":"Overweight","note":"Moderate risk; focus on adherence and progressive activity."}
+
+--- GET / (UI) ---
+dashboard HTTP 200
+
+[1;36m==> Version 3.2.4 confirmed live on aceest-fitness-variant-b[0m
+
+[1;36m==> Smoke test PASSED[0m
+
+[1;33m==> A/B live. Variant B is selected with the header  X-Variant: B[0m
+
+[1;33m==> Deployment summary[0m
+NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES                             SELECTOR
+deployment.apps/aceest-fitness             7/7     7            7           5h12m   app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,track=stable
+deployment.apps/aceest-fitness-blue        3/3     3            3           9m58s   app          2026ht66052/aceest-fitness:3.1.2   app=aceest-fitness,color=blue
+deployment.apps/aceest-fitness-canary      0/0     0            0           3m6s    app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,track=canary
+deployment.apps/aceest-fitness-green       3/3     3            3           9m57s   app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,color=green
+deployment.apps/aceest-fitness-shadow      1/1     1            1           73s     app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,track=shadow
+deployment.apps/aceest-fitness-variant-a   2/2     2            2           16s     app          2026ht66052/aceest-fitness:3.1.2   app=aceest-fitness,variant=a
+deployment.apps/aceest-fitness-variant-b   2/2     2            2           16s     app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,variant=b
+
+NAME                                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE     SELECTOR
+service/aceest-fitness                 ClusterIP   10.43.98.115    <none>        80/TCP         21h     app=aceest-fitness,role=serving
+service/aceest-fitness-active          NodePort    10.43.170.126   <none>        80:30081/TCP   9m57s   app=aceest-fitness,color=blue
+service/aceest-fitness-blue-preview    NodePort    10.43.25.147    <none>        80:30082/TCP   9m57s   app=aceest-fitness,color=blue
+service/aceest-fitness-canary          NodePort    10.43.178.136   <none>        80:30084/TCP   3m6s    app=aceest-fitness,track=canary
+service/aceest-fitness-green-preview   NodePort    10.43.183.32    <none>        80:30083/TCP   9m57s   app=aceest-fitness,color=green
+service/aceest-fitness-nodeport        NodePort    10.43.174.127   <none>        80:30080/TCP   21h     app=aceest-fitness,role=serving
+service/aceest-fitness-shadow          ClusterIP   10.43.170.195   <none>        80/TCP         73s     app=aceest-fitness,track=shadow
+service/aceest-fitness-variant-a       NodePort    10.43.175.42    <none>        80:30085/TCP   16s     app=aceest-fitness,variant=a
+service/aceest-fitness-variant-b       NodePort    10.43.23.107    <none>        80:30086/TCP   16s     app=aceest-fitness,variant=b
+
+NAME                                            READY   STATUS    RESTARTS   AGE     IP            NODE                  NOMINATED NODE   READINESS GATES
+pod/aceest-fitness-7669459f88-4crs4             1/1     Running   0          61s     10.42.0.129   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7669459f88-d78cr             1/1     Running   0          61s     10.42.0.128   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7669459f88-gdb5j             1/1     Running   0          3m6s    10.42.0.111   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7669459f88-kzmdj             1/1     Running   0          46s     10.42.0.131   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7669459f88-m2xxk             1/1     Running   0          2m31s   10.42.0.122   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7669459f88-n9gc4             1/1     Running   0          61s     10.42.0.130   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-7669459f88-x4bzs             1/1     Running   0          2m31s   10.42.0.124   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-blue-79cf8954f7-8pmvz        1/1     Running   0          9m57s   10.42.0.105   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-blue-79cf8954f7-lwcrv        1/1     Running   0          9m57s   10.42.0.106   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-blue-79cf8954f7-snzps        1/1     Running   0          9m57s   10.42.0.102   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-green-77b8fc4464-cp6b2       1/1     Running   0          9m57s   10.42.0.103   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-green-77b8fc4464-jglxv       1/1     Running   0          9m57s   10.42.0.104   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-green-77b8fc4464-nb5nt       1/1     Running   0          9m57s   10.42.0.107   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-shadow-598bfc48bd-4s9pz      1/1     Running   0          73s     10.42.0.127   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-variant-a-6ccbf46dc7-6tpkl   1/1     Running   0          16s     10.42.0.133   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-variant-a-6ccbf46dc7-xc6td   1/1     Running   0          16s     10.42.0.134   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-variant-b-7df59b67fb-7nkgk   1/1     Running   0          16s     10.42.0.132   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-variant-b-7df59b67fb-892bf   1/1     Running   0          16s     10.42.0.135   k3d-aceest-server-0   <none>           <none>
+
+### control (no header) via ingress:
+{"app":"aceest-fitness","instance":"aceest-fitness-variant-a-6ccbf46dc7-xc6td","track":"variant-a","version":"3.1.2"}
+
+{"app":"aceest-fitness","instance":"aceest-fitness-variant-a-6ccbf46dc7-6tpkl","track":"variant-a","version":"3.1.2"}
+
+{"app":"aceest-fitness","instance":"aceest-fitness-variant-a-6ccbf46dc7-xc6td","track":"variant-a","version":"3.1.2"}
+
+
+### experiment (X-Variant: B) via ingress:
+{"app":"aceest-fitness","instance":"aceest-fitness-variant-b-7df59b67fb-892bf","track":"variant-b","version":"3.2.4"}
+
+{"app":"aceest-fitness","instance":"aceest-fitness-variant-b-7df59b67fb-7nkgk","track":"variant-b","version":"3.2.4"}
+
+{"app":"aceest-fitness","instance":"aceest-fitness-variant-b-7df59b67fb-892bf","track":"variant-b","version":"3.2.4"}
+
+
+### variant A direct (30085):
+{"app":"aceest-fitness","instance":"aceest-fitness-variant-a-6ccbf46dc7-6tpkl","track":"variant-a","version":"3.1.2"}
+
+### variant B direct (30086):
+{"app":"aceest-fitness","instance":"aceest-fitness-variant-b-7df59b67fb-7nkgk","track":"variant-b","version":"3.2.4"}
+
+
+### final cluster state:
+NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES                             SELECTOR
+deployment.apps/aceest-fitness             7/7     7            7           5h12m   app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,track=stable
+deployment.apps/aceest-fitness-blue        3/3     3            3           9m58s   app          2026ht66052/aceest-fitness:3.1.2   app=aceest-fitness,color=blue
+deployment.apps/aceest-fitness-canary      0/0     0            0           3m6s    app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,track=canary
+deployment.apps/aceest-fitness-green       3/3     3            3           9m57s   app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,color=green
+deployment.apps/aceest-fitness-shadow      1/1     1            1           73s     app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,track=shadow
+deployment.apps/aceest-fitness-variant-a   2/2     2            2           16s     app          2026ht66052/aceest-fitness:3.1.2   app=aceest-fitness,variant=a
+deployment.apps/aceest-fitness-variant-b   2/2     2            2           16s     app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,variant=b
+
+NAME                                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE     SELECTOR
+service/aceest-fitness                 ClusterIP   10.43.98.115    <none>        80/TCP         21h     app=aceest-fitness,role=serving
+service/aceest-fitness-active          NodePort    10.43.170.126   <none>        80:30081/TCP   9m57s   app=aceest-fitness,color=blue
+service/aceest-fitness-blue-preview    NodePort    10.43.25.147    <none>        80:30082/TCP   9m57s   app=aceest-fitness,color=blue
+service/aceest-fitness-canary          NodePort    10.43.178.136   <none>        80:30084/TCP   3m6s    app=aceest-fitness,track=canary
+service/aceest-fitness-green-preview   NodePort    10.43.183.32    <none>        80:30083/TCP   9m57s   app=aceest-fitness,color=green
+service/aceest-fitness-nodeport        NodePort    10.43.174.127   <none>        80:30080/TCP   21h     app=aceest-fitness,role=serving
+service/aceest-fitness-shadow          ClusterIP   10.43.170.195   <none>        80/TCP         73s     app=aceest-fitness,track=shadow
+service/aceest-fitness-variant-a       NodePort    10.43.175.42    <none>        80:30085/TCP   16s     app=aceest-fitness,variant=a
+service/aceest-fitness-variant-b       NodePort    10.43.23.107    <none>        80:30086/TCP   16s     app=aceest-fitness,variant=b
+
+NAME                                                    CLASS   HOSTS          ADDRESS       PORTS   AGE
+ingress.networking.k8s.io/aceest-fitness-ab-variant-b   nginx   *                            80      15s
+ingress.networking.k8s.io/aceest-fitness-mirror         nginx   aceest.local   10.43.44.65   80      73s
+ingress.networking.k8s.io/aceest-fitness-primary        nginx   *              10.43.44.65   80      2m59s

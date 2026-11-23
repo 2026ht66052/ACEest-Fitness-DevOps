@@ -1,0 +1,188 @@
+
+[1;33m==> Ensuring namespace and shared resources exist[0m
+namespace/aceest unchanged
+configmap/aceest-config unchanged
+secret/aceest-secret configured
+service/aceest-fitness unchanged
+service/aceest-fitness-nodeport unchanged
+deployment.apps/aceest-fitness-blue created
+deployment.apps/aceest-fitness-green created
+service/aceest-fitness-active created
+service/aceest-fitness-blue-preview created
+service/aceest-fitness-green-preview created
+
+[1;33m==> Active colour is blue; deploying 3.2.4 to the idle colour: green[0m
+deployment.apps/aceest-fitness-green annotated
+
+[1;33m==> Waiting for aceest-fitness-green to become available[0m
+Waiting for deployment "aceest-fitness-green" rollout to finish: 0 of 3 updated replicas are available...
+Waiting for deployment "aceest-fitness-green" rollout to finish: 1 of 3 updated replicas are available...
+Waiting for deployment "aceest-fitness-green" rollout to finish: 2 of 3 updated replicas are available...
+deployment "aceest-fitness-green" successfully rolled out
+
+[1;33m==> Smoke testing the idle colour through its preview service[0m
+
+[1;36m==> Smoke testing http://aceest-fitness-green-preview.aceest.svc.cluster.local[0m
+--- /health  ---
+{"status":"ok","version":"3.2.4"}
+
+--- /ready   ---
+{"status":"ready","version":"3.2.4"}
+
+--- /version ---
+{"app":"aceest-fitness","instance":"aceest-fitness-green-77b8fc4464-jglxv","track":"green","version":"3.2.4"}
+
+--- GET /api/v1/programs ---
+{"count":4,"programs":[{"calorie_factor":22,"description":"3-day full-body fat loss circuit","diet":"Egg whites + oats, grilled chicken + brown rice, fish curry + millet roti","focus":"Conditioning","
+--- POST /api/v1/bmi ---
+{"bmi":26.1,"category":"Overweight","note":"Moderate risk; focus on adherence and progressive activity."}
+
+--- GET / (UI) ---
+dashboard HTTP 200
+
+[1;36m==> Version 3.2.4 confirmed live on aceest-fitness-green-preview[0m
+
+[1;36m==> Smoke test PASSED[0m
+
+[1;33m==> green is live but NOT receiving traffic. Re-run with --promote to cut over.[0m
+
+[1;33m==> Deployment summary[0m
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS   IMAGES                             SELECTOR
+deployment.apps/aceest-fitness         3/3     3            3           5h2m   app          2026ht66052/aceest-fitness:3.1.2   app=aceest-fitness,track=stable
+deployment.apps/aceest-fitness-blue    3/3     3            3           15s    app          2026ht66052/aceest-fitness:3.1.2   app=aceest-fitness,color=blue
+deployment.apps/aceest-fitness-green   3/3     3            3           14s    app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,color=green
+
+NAME                                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE   SELECTOR
+service/aceest-fitness                 ClusterIP   10.43.98.115    <none>        80/TCP         21h   app=aceest-fitness,role=serving
+service/aceest-fitness-active          NodePort    10.43.170.126   <none>        80:30081/TCP   14s   app=aceest-fitness,color=blue
+service/aceest-fitness-blue-preview    NodePort    10.43.25.147    <none>        80:30082/TCP   14s   app=aceest-fitness,color=blue
+service/aceest-fitness-green-preview   NodePort    10.43.183.32    <none>        80:30083/TCP   14s   app=aceest-fitness,color=green
+service/aceest-fitness-nodeport        NodePort    10.43.174.127   <none>        80:30080/TCP   21h   app=aceest-fitness,role=serving
+
+NAME                                        READY   STATUS    RESTARTS   AGE   IP            NODE                  NOMINATED NODE   READINESS GATES
+pod/aceest-fitness-85fdc9754d-7295z         1/1     Running   0          46s   10.42.0.101   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-85fdc9754d-b9kbm         1/1     Running   0          62s   10.42.0.99    k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-85fdc9754d-rkdk4         1/1     Running   0          54s   10.42.0.100   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-blue-79cf8954f7-8pmvz    1/1     Running   0          14s   10.42.0.105   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-blue-79cf8954f7-lwcrv    1/1     Running   0          14s   10.42.0.106   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-blue-79cf8954f7-snzps    1/1     Running   0          14s   10.42.0.102   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-green-77b8fc4464-cp6b2   1/1     Running   0          14s   10.42.0.103   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-green-77b8fc4464-jglxv   1/1     Running   0          14s   10.42.0.104   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-green-77b8fc4464-nb5nt   1/1     Running   0          14s   10.42.0.107   k3d-aceest-server-0   <none>           <none>
+
+### active (not yet promoted):
+{"app":"aceest-fitness","instance":"aceest-fitness-blue-79cf8954f7-snzps","track":"blue","version":"3.1.2"}
+
+### green preview:
+{"app":"aceest-fitness","instance":"aceest-fitness-green-77b8fc4464-nb5nt","track":"green","version":"3.2.4"}
+
+
+[1;33m==> Ensuring namespace and shared resources exist[0m
+namespace/aceest unchanged
+configmap/aceest-config unchanged
+secret/aceest-secret configured
+service/aceest-fitness unchanged
+service/aceest-fitness-nodeport unchanged
+deployment.apps/aceest-fitness-blue unchanged
+deployment.apps/aceest-fitness-green unchanged
+service/aceest-fitness-active unchanged
+service/aceest-fitness-blue-preview unchanged
+service/aceest-fitness-green-preview unchanged
+
+[1;33m==> Active colour is blue; deploying 3.2.4 to the idle colour: green[0m
+deployment.apps/aceest-fitness-green annotated
+
+[1;33m==> Waiting for aceest-fitness-green to become available[0m
+deployment "aceest-fitness-green" successfully rolled out
+
+[1;33m==> Smoke testing the idle colour through its preview service[0m
+
+[1;36m==> Smoke testing http://aceest-fitness-green-preview.aceest.svc.cluster.local[0m
+--- /health  ---
+{"status":"ok","version":"3.2.4"}
+
+--- /ready   ---
+{"status":"ready","version":"3.2.4"}
+
+--- /version ---
+{"app":"aceest-fitness","instance":"aceest-fitness-green-77b8fc4464-cp6b2","track":"green","version":"3.2.4"}
+
+--- GET /api/v1/programs ---
+{"count":4,"programs":[{"calorie_factor":22,"description":"3-day full-body fat loss circuit","diet":"Egg whites + oats, grilled chicken + brown rice, fish curry + millet roti","focus":"Conditioning","
+--- POST /api/v1/bmi ---
+{"bmi":26.1,"category":"Overweight","note":"Moderate risk; focus on adherence and progressive activity."}
+
+--- GET / (UI) ---
+dashboard HTTP 200
+
+[1;36m==> Version 3.2.4 confirmed live on aceest-fitness-green-preview[0m
+
+[1;36m==> Smoke test PASSED[0m
+
+[1;33m==> PROMOTING green — switching 100% of traffic[0m
+service/aceest-fitness-active patched
+service/aceest-fitness-active annotated
+
+[1;33m==> Traffic now served by green. Rollback: ./scripts/rollback.sh --strategy blue-green[0m
+
+[1;33m==> Deployment summary[0m
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS   IMAGES                             SELECTOR
+deployment.apps/aceest-fitness         3/3     3            3           5h2m   app          2026ht66052/aceest-fitness:3.1.2   app=aceest-fitness,track=stable
+deployment.apps/aceest-fitness-blue    3/3     3            3           21s    app          2026ht66052/aceest-fitness:3.1.2   app=aceest-fitness,color=blue
+deployment.apps/aceest-fitness-green   3/3     3            3           20s    app          2026ht66052/aceest-fitness:3.2.4   app=aceest-fitness,color=green
+
+NAME                                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE   SELECTOR
+service/aceest-fitness                 ClusterIP   10.43.98.115    <none>        80/TCP         21h   app=aceest-fitness,role=serving
+service/aceest-fitness-active          NodePort    10.43.170.126   <none>        80:30081/TCP   20s   app=aceest-fitness,color=green
+service/aceest-fitness-blue-preview    NodePort    10.43.25.147    <none>        80:30082/TCP   20s   app=aceest-fitness,color=blue
+service/aceest-fitness-green-preview   NodePort    10.43.183.32    <none>        80:30083/TCP   20s   app=aceest-fitness,color=green
+service/aceest-fitness-nodeport        NodePort    10.43.174.127   <none>        80:30080/TCP   21h   app=aceest-fitness,role=serving
+
+NAME                                        READY   STATUS    RESTARTS   AGE   IP            NODE                  NOMINATED NODE   READINESS GATES
+pod/aceest-fitness-85fdc9754d-7295z         1/1     Running   0          52s   10.42.0.101   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-85fdc9754d-b9kbm         1/1     Running   0          68s   10.42.0.99    k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-85fdc9754d-rkdk4         1/1     Running   0          60s   10.42.0.100   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-blue-79cf8954f7-8pmvz    1/1     Running   0          20s   10.42.0.105   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-blue-79cf8954f7-lwcrv    1/1     Running   0          20s   10.42.0.106   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-blue-79cf8954f7-snzps    1/1     Running   0          20s   10.42.0.102   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-green-77b8fc4464-cp6b2   1/1     Running   0          20s   10.42.0.103   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-green-77b8fc4464-jglxv   1/1     Running   0          20s   10.42.0.104   k3d-aceest-server-0   <none>           <none>
+pod/aceest-fitness-green-77b8fc4464-nb5nt   1/1     Running   0          20s   10.42.0.107   k3d-aceest-server-0   <none>           <none>
+
+### active AFTER promote:
+{"app":"aceest-fitness","instance":"aceest-fitness-green-77b8fc4464-nb5nt","track":"green","version":"3.2.4"}
+
+
+### ROLLBACK (selector flip):
+
+[1;31m==> ROLLBACK: Switching traffic from green back to blue[0m
+service/aceest-fitness-active patched
+service/aceest-fitness-active annotated
+{"app":"aceest-fitness","color":"blue"}
+
+[1;31m==> ROLLBACK: Post-rollback state[0m
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/aceest-fitness         3/3     3            3           5h2m
+deployment.apps/aceest-fitness-blue    3/3     3            3           22s
+deployment.apps/aceest-fitness-green   3/3     3            3           21s
+
+NAME                                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+service/aceest-fitness                 ClusterIP   10.43.98.115    <none>        80/TCP         21h
+service/aceest-fitness-active          NodePort    10.43.170.126   <none>        80:30081/TCP   21s
+service/aceest-fitness-blue-preview    NodePort    10.43.25.147    <none>        80:30082/TCP   21s
+service/aceest-fitness-green-preview   NodePort    10.43.183.32    <none>        80:30083/TCP   21s
+service/aceest-fitness-nodeport        NodePort    10.43.174.127   <none>        80:30080/TCP   21h
+
+NAME                                        READY   STATUS    RESTARTS   AGE
+pod/aceest-fitness-85fdc9754d-7295z         1/1     Running   0          53s
+pod/aceest-fitness-85fdc9754d-b9kbm         1/1     Running   0          69s
+pod/aceest-fitness-85fdc9754d-rkdk4         1/1     Running   0          61s
+pod/aceest-fitness-blue-79cf8954f7-8pmvz    1/1     Running   0          21s
+pod/aceest-fitness-blue-79cf8954f7-lwcrv    1/1     Running   0          21s
+pod/aceest-fitness-blue-79cf8954f7-snzps    1/1     Running   0          21s
+pod/aceest-fitness-green-77b8fc4464-cp6b2   1/1     Running   0          21s
+pod/aceest-fitness-green-77b8fc4464-jglxv   1/1     Running   0          21s
+pod/aceest-fitness-green-77b8fc4464-nb5nt   1/1     Running   0          21s
+### active after rollback:
+{"app":"aceest-fitness","instance":"aceest-fitness-blue-79cf8954f7-lwcrv","track":"blue","version":"3.1.2"}
+
