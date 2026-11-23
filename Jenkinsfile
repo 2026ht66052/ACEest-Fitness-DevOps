@@ -233,7 +233,7 @@ pipeline {
               --image "${IMAGE_NAME}:${IMAGE_TAG}" \
               --version "${APP_VERSION_ARG}" \
               --namespace "${K8S_NAMESPACE}" \
-              ${PROMOTE_FLAG}
+              ${PROMOTE_FLAG:-}
           '''
         }
       }
