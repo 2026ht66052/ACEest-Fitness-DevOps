@@ -1,8 +1,8 @@
 # ACEest Fitness & Gym — CI/CD Implementation Report
 
 **Role:** DevOps Engineer
-**Repository:** `https://github.com/<your-username>/aceest-fitness-devops`
-**Container registry:** `https://hub.docker.com/r/<your-username>/aceest-fitness`
+**Repository:** `https://github.com/2026ht66052/aceest-fitness-devops`
+**Container registry:** `https://hub.docker.com/r/2026ht66052/aceest-fitness`
 **Date:** 2026-11-22
 
 ---
@@ -213,6 +213,46 @@ proceed.
 
 ---
 
+**13. A silent MTU black hole broke every container build.**
+`pip install` inside any build container hung and then failed with
+`SSLEOFError: UNEXPECTED_EOF_WHILE_READING` against PyPI, while the same
+install on the host succeeded. DNS resolved, TCP connected, and the TLS
+handshake then stalled on the ServerHello — the first packet large enough to
+exceed the path MTU. Docker reported MTU 1500 on both `eth0` and the bridge,
+but the Codespace's egress path is smaller and PMTU discovery was being
+blackholed, so oversized frames were dropped with no ICMP response.
+*Mitigation:* ruled out the obvious causes in turn — proxy variables, custom CA
+bundles, pip configuration, host networking, and the legacy builder — each of
+which failed identically, which is what pointed at the packet layer rather than
+the application layer. Builds now run on a dedicated Docker network with a
+1400-byte MTU, created during cluster bootstrap, and the Flask wheel that
+previously timed out after fifteen minutes of retries downloads in two seconds.
+
+**14. The quality gate could not run alongside the rest of the toolchain.**
+The Sonar scanner spawns embedded Node.js bridges that size their heaps from
+*total* system RAM, ignoring that Jenkins and a Kubernetes cluster already hold
+most of it. On an 8 GB host the scan was OOM-killed at a different sensor on
+every attempt, always with `EXECUTION FAILURE` and no stack trace, because the
+process was terminated rather than failing.
+*Mitigation:* capped the Node heap and excluded the Groovy analysis of the
+Jenkinsfile, which removed one of two bridges. The scan still could not be made
+reliable concurrently with Jenkins and k3d, so the pipeline exposes a
+`SKIP_SONAR` parameter and the quality gate is run as a separate step, where it
+passes with 95% coverage reported. The honest conclusion is a capacity
+limitation of the free-tier host, not a defect in the pipeline: the analysis
+command is byte-identical in both cases.
+
+**15. Jenkins drops empty environment variables.**
+The deploy stage aborted with `PROMOTE_FLAG: parameter not set`. The pipeline
+derives that flag from a boolean parameter, yielding an empty string when the
+promotion is not requested — and Jenkins omits empty-valued variables from the
+shell environment entirely, so `set -u` treated it as unbound and fatal.
+*Mitigation:* defaulted the expansion with `${PROMOTE_FLAG:-}`. Worth recording
+because the failure only appears on the unticked path, so a pipeline tested
+only with promotion enabled would ship the bug.
+
+---
+
 ## 3. Key automation outcomes
 
 | Metric | Before | After |
@@ -237,7 +277,14 @@ proceed.
    or critical issues.
 3. Docker Hub repository listing tags `1.0` … `3.2.4` and `latest`.
 4. `kubectl -n aceest get deploy,svc,ingress` showing all five strategies.
-5. `/version` responses proving each traffic split:
+5. Live endpoints (k3d in a GitHub Codespace; public while it runs):
+   * Dashboard — `https://ideal-enigma-96jpx4q565g4h656-30080.app.github.dev/`
+   * Blue-green active — `:30081/version`  · previews `:30082` / `:30083`
+   * Canary direct — `:30084/version`
+   * A/B variants — `:30085` / `:30086` `/version`
+   * Ingress (A/B header routing) — `:30090/version`
+   * Jenkins — `:8080`
+6. `/version` responses proving each traffic split:
    blue-green active colour, a mixed canary sample, variant A vs variant B by
    header, and the shadow pod's logs showing mirrored requests while serving no
    user traffic.

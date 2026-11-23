@@ -1,0 +1,18 @@
+
+  Codespace: ideal-enigma-96jpx4q565g4h656
+  (the 'code' column is the response from inside the Codespace;
+   a port must be set to Public before the URL works for your assessor)
+
+  WHAT                   PORT   CODE  URL
+  ------------------------------------------------------------------------
+  Jenkins                8080   200   https://ideal-enigma-96jpx4q565g4h656-8080.app.github.dev/login
+  App dashboard          30080  200   https://ideal-enigma-96jpx4q565g4h656-30080.app.github.dev/
+  App version            30080  200   https://ideal-enigma-96jpx4q565g4h656-30080.app.github.dev/version
+  Blue-green ACTIVE      30081  200   https://ideal-enigma-96jpx4q565g4h656-30081.app.github.dev/version
+  Blue preview           30082  200   https://ideal-enigma-96jpx4q565g4h656-30082.app.github.dev/version
+  Green preview          30083  200   https://ideal-enigma-96jpx4q565g4h656-30083.app.github.dev/version
+  Canary direct          30084  200   https://ideal-enigma-96jpx4q565g4h656-30084.app.github.dev/version
+  A/B variant A          30085  200   https://ideal-enigma-96jpx4q565g4h656-30085.app.github.dev/version
+  A/B variant B          30086  200   https://ideal-enigma-96jpx4q565g4h656-30086.app.github.dev/version
+  Ingress                30090  200   https://ideal-enigma-96jpx4q565g4h656-30090.app.github.dev/version
+
