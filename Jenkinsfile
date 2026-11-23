@@ -155,7 +155,7 @@ pipeline {
       steps {
         sh '''
           set -eu
-          docker build --network=host \
+          DOCKER_BUILDKIT=0 docker build --network=lowmtu \
             --build-arg APP_VERSION=${APP_VERSION_ARG} \
             --build-arg GIT_COMMIT=${GIT_COMMIT_SHORT} \
             --build-arg BUILD_DATE=${BUILD_DATE} \
@@ -187,7 +187,7 @@ pipeline {
           # Run the Pytest suite *inside* the built image (requirement 7).
           # --user root is needed only here: the runtime image deliberately runs
           # as uid 10001, which cannot install the test-only dependencies.
-          docker run --rm --user root --entrypoint sh \
+          docker run --rm --network=lowmtu --user root --entrypoint sh \
             -v "$PWD/tests:/app/tests:ro" \
             -v "$PWD/pytest.ini:/app/pytest.ini:ro" \
             ${IMAGE_NAME}:${IMAGE_TAG} \

@@ -34,7 +34,7 @@ for VERSION in "${VERSIONS[@]}"; do
     echo "    (tag v${VERSION} not found — building from the current tree)"
   fi
 
-  docker build --network=host \
+  DOCKER_BUILDKIT=0 docker build --network=lowmtu \
     --build-arg "APP_VERSION=${VERSION}" \
     --build-arg "GIT_COMMIT=$(git rev-parse --short HEAD)" \
     --build-arg "BUILD_DATE=$(date -u +%FT%TZ)" \

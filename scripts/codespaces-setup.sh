@@ -15,6 +15,14 @@ set -euo pipefail
 CLUSTER="${CLUSTER:-aceest}"
 log() { printf '\n\033[1;33m==> %s\033[0m\n' "$*"; }
 
+log "Ensuring the reduced-MTU build network exists"
+# The Codespace's egress path cannot carry 1500-byte frames and PMTU discovery
+# is blackholed, so TLS handshakes from the default bridge hang mid-exchange
+# and every pip install inside a build fails. A 1400-byte MTU network avoids
+# fragmentation entirely; builds use it via --network=lowmtu.
+docker network create --opt com.docker.network.driver.mtu=1400 lowmtu 2>/dev/null \
+  || echo "    lowmtu network already present"
+
 if [[ "${RECREATE:-0}" == "1" ]]; then
   log "Deleting the existing cluster"
   k3d cluster delete "${CLUSTER}" || true
